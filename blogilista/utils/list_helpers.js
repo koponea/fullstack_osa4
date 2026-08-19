@@ -50,9 +50,36 @@ const mostBlogs = blogs => {
     bloggers.reduce(reducer, blogs[0]) : null
 }
 
+const mostLikes = blogs => {
+  const authors = blogs ? toArray(new Set(blogs.map(blog => blog.author ? blog.author : ''))) : []
+  let bloggers = []
+
+  authors.forEach(author => {
+    let blogger = { author, likes: 0 }
+    blogs.forEach(blog => {
+      if (blog.likes &&
+        ((blog.author && blog.author === author) || (!blog.author && author === ''))) {
+        blogger.likes = blogger.likes + blog.likes
+      }
+    })
+    bloggers.push(blogger)
+  })
+  logger.debug('debug: mostLikes bloggers:', bloggers)
+  const reducer = (mostLiked, blogger) => {
+    // last handled blogger
+    return mostLiked.likes > blogger.likes ? mostLiked : blogger
+  }
+
+  if (blogs && blogs.length === 1)
+    return { author: blogs[0].author ? blogs[0].author : '', likes: blogs[0].likes ? blogs[0].likes : 0 }
+  return blogs && blogs.length !== 0 ?
+    bloggers.reduce(reducer, blogs[0]) : null
+}
+
 module.exports = {
   dummy,
   totalLikes,
   favoriteBlog,
-  mostBlogs
+  mostBlogs,
+  mostLikes
 }

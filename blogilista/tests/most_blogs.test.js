@@ -2,6 +2,8 @@ const { test, describe } = require('node:test')
 const assert = require('node:assert')
 const listHelper = require('../utils/list_helpers')
 
+const anonymous = ''
+
 describe('most blogs', () => {
   const listWithNoBlogList = null
   const listWithNoBlogs = []
@@ -27,7 +29,7 @@ describe('most blogs', () => {
 
   ]
   const listWithAlsoNoAuthors = [
-    { _id: '5a405aa71b54a676234d17f8', title: 'Mindblowing 5', author: '', url: 'http://www.helsinki.fi/Harmful5.html', likes: 5, __v: 0 },
+    { _id: '5a405aa71b54a676234d17f8', title: 'Mindblowing 5', author: anonymous, url: 'http://www.helsinki.fi/Harmful5.html', likes: 5, __v: 0 },
     { _id: '5a405aa71b54a676234d17f8', title: 'Mindblowing 5', author: 'Zooty5', url: 'http://www.helsinki.fi/Harmful5.html', likes: 5, __v: 0 },
     { _id: '5a409aa71b54a676234d17f8', title: 'Mindblowing no', url: 'http://www.helsinki.fi/HarmfulNO.html', likes: 5, __v: 0 },
     { _id: '5a400aa71b54a676234d17f8', title: 'Mindblowing no 2', url: 'http://www.helsinki.fi/HarmfulNO.html', likes: 6, __v: 0 },
@@ -59,6 +61,6 @@ describe('most blogs', () => {
   test('of a list where some have no authors the most blogged anonymous is found right', () => {
     // get '' when no author recorded
     const result = listHelper.mostBlogs(listWithAlsoNoAuthors)
-    assert.deepStrictEqual(result, { author: '', blogs: 3 })
+    assert.deepStrictEqual(result, { author: anonymous, blogs: 3 })
   })
 })
