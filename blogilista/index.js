@@ -1,9 +1,10 @@
 
 const app = require('./app') // varsinainen Express-sovellus
 const { PORT } = require('./utils/config')
+const { info }= require('./utils/logger')
 
-console.log('Blogilista app coming around...')
+info('Blogilista app coming around...')
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
+  info(`Server running on port ${PORT}`)
 })

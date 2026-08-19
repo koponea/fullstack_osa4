@@ -34,4 +34,4 @@ Tämä repositorio sisältää kurssin osan 4 tehtävien palautuksen (4.X)
   Sisältää mongodb-urlin sisältävän env-muuttujan käyttöönoton.
   Ei sisällä apien muuttamisia eikä BE-virheenkäsitelyn lisäämistä tms.
 - Blogilista backend, step 2 (tehtävä 4.2),
-  Blogilistan backendin modulointi.
+  Blogilistan backendin modulointi ja täydennetty myös virheenhallintaa, loggausta ja apikäsittelyä
