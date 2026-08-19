@@ -1,0 +1,9 @@
+POST http://localhost:3003/api/blogs
+content-type: application/json
+
+{
+    "title": "Rakenne ja alkeet 3",
+    "author": "Matti Luukkainen",
+    "url": "https://fullstackopen.com/osa4/rakenne_ja_alkeet",
+    "likes": "103"
+}

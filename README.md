@@ -29,4 +29,7 @@ Tämä repositorio sisältää kurssin osan 4 tehtävien palautuksen (4.X)
 
 ### fullstack_osa4
 
-- starting...
+- Blogilista backend, step 1 (tehtävä 4.1),
+  annetun index.js:n muuttaminen npm-projektiksi.
+  Sisältää mongodb-urlin sisältävän env-muuttujan käyttöönoton.
+  Ei sisällä apien muuttamisia eikä BE-virheenkäsitelyn lisäämistä tms.

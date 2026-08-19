@@ -1,0 +1,31 @@
+{
+  "name": "blogilista",
+  "version": "1.0.0",
+  "description": "Open Fullstack ex 4.X",
+  "keywords": [
+    "fullstack",
+    "blogilista"
+  ],
+  "license": "MIT",
+  "author": "Aila Koponen",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "test": "echo \\\"Error: no test specified yet\\\" && exit 1",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "mongodb": "^7.5.0",
+    "mongoose": "^9.9.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "eslint": "^10.8.1",
+    "globals": "^17.11.0"
+  }
+}
