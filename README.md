@@ -35,5 +35,5 @@ Tämä repositorio sisältää kurssin osan 4 tehtävien palautuksen (4.X)
   Ei sisällä apien muuttamisia eikä BE-virheenkäsitelyn lisäämistä tms.
 - Blogilista backend, step 2 (tehtävä 4.2),
   Blogilistan backendin modulointi ja täydennetty myös virheenhallintaa, loggausta ja apikäsittelyä
-- Apufunktioita ja yksikkötestejä, stepit 1-3 (tehtävät 4.3-4.5*),
-  dummy, total_likes ja favourite_blog -testit sekä kohdefunktiot
+- Apufunktioita ja yksikkötestejä, stepit 1-4 (tehtävät 4.3-4.6*),
+  dummy, total_likes, favourite_blog ja most_bloggers -testit sekä kohdefunktiot

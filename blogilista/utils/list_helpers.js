@@ -1,3 +1,4 @@
+const { toArray } = require('lodash')
 const logger = require('./logger')
 
 const dummy = (blogs) => {
@@ -25,8 +26,33 @@ const favoriteBlog = (blogs) => {
     blogs.reduce(reducer, blogs[0]) : null
 }
 
+const mostBlogs = blogs => {
+  const authors = blogs ? toArray(new Set(blogs.map(blog => blog.author ? blog.author : ''))) : []
+  let bloggers = []
+
+  authors.forEach(author => {
+    let blogger = { author, blogs: 0 }
+    blogs.forEach(blog => {
+      blog.author && blog.author === author && ++blogger.blogs
+      !blog.author && author === '' && ++blogger.blogs
+    })
+    bloggers.push(blogger)
+  })
+  logger.debug('debug: mostBlogs bloggers:', bloggers)
+  const reducer = (mostActive, blogger) => {
+    // last handled blogger
+    return mostActive.blogs > blogger.blogs ? mostActive : blogger
+  }
+
+  if (blogs && blogs.length === 1)
+    return { author: blogs[0].author ? blogs[0].author : '', blogs: 1 }
+  return blogs && blogs.length !== 0 ?
+    bloggers.reduce(reducer, blogs[0]) : null
+}
+
 module.exports = {
   dummy,
   totalLikes,
-  favoriteBlog
+  favoriteBlog,
+  mostBlogs
 }
