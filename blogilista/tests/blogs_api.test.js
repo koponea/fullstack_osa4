@@ -1,9 +1,8 @@
 const assert = require('node:assert')
-const { test, after, beforeEach } = require('node:test')
+const { test, after, beforeEach, describe } = require('node:test')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
-//const Blog = require('../models/blog')
 const helper = require('./test_helper')
 const logger = require('../utils/logger.js')
 const { omit }  = require('lodash')
@@ -14,122 +13,178 @@ const api = supertest(app) // kääräisy,
 // yllättävästi valittu tyhjentää db ennen joka testiä, mutta - UT.
 beforeEach(async () =>   await helper.testInitBlogsDb())
 
-test('blogs are returned as json', async () => {
-  await helper.injectToBlogsDb(helper.listWithOneBlog)
+describe('Blogs main api tests', () => {
+  describe('Retrieving data', () => {
+    test('blogs are returned as json', async () => {
+      await helper.injectToBlogsDb(helper.listWithOneBlog)
 
-  await api
-    .get('/api/blogs')
-    .expect(200)
-    .expect('Content-Type', /application\/json/)
-})
+      await api
+        .get('/api/blogs')
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+    })
 
-test('all blogs are returned', async () => {
-  await helper.injectToBlogsDb(helper.listWithManyBlogsSimple)
-  const blogs = await helper.blogsInDb()
-  logger.debug('test all returned titles', blogs.map(b => b.title))
+    test('all blogs are returned', async () => {
+      await helper.injectToBlogsDb(helper.listWithManyBlogsSimple)
+      const blogs = await helper.blogsInDb()
+      logger.debug('test all returned titles', blogs.map(b => b.title))
 
-  const response = await api.get('/api/blogs')
-  assert.strictEqual(response.body.length, helper.listWithManyBlogsSimple.length)
-})
+      const response = await api.get('/api/blogs')
+      assert.strictEqual(response.body.length, helper.listWithManyBlogsSimple.length)
+    })
+  })
 
-test('blog is identified with the id attribute', async () => {
-  await helper.injectToBlogsDb(helper.listWithOneBlog)
-  // const blogs = await helper.blogsInDb()
-  // logger.debug('test all returned titles', blogs.map(b => b.title))
+  describe('Creating blogs', () => {
 
-  const response = await api.get('/api/blogs/')
-  assert.strictEqual(response.body.length, 1)
+    test('blog is identified with the id attribute', async () => {
+      await helper.injectToBlogsDb(helper.listWithOneBlog)
+      // const blogs = await helper.blogsInDb()
+      // logger.debug('test all returned titles', blogs.map(b => b.title))
 
-  logger.debug('test identify by "id"', Object.keys(response.body[0]))
-  assert(Object.keys(response.body[0]).includes('id'))
+      const response = await api.get('/api/blogs/')
+      assert.strictEqual(response.body.length, 1)
 
-  const responseSingle = await api.get(`/api/blogs/${response.body[0].id}`)
-  assert.deepStrictEqual(response.body[0], responseSingle.body)
-})
+      logger.debug('test identify by "id"', Object.keys(response.body[0]))
+      assert(Object.keys(response.body[0]).includes('id'))
 
-test('a valid blog can be added', async () => {
-  await helper.injectToBlogsDb(helper.listWithManyBlogsSimple)
-  const blogsInjected = await helper.blogsInDb()
+      const responseSingle = await api.get(`/api/blogs/${response.body[0].id}`)
+      assert.deepStrictEqual(response.body[0], responseSingle.body)
+    })
 
-  const blogNew = {
-    title: helper.generateTestGuid(),
-    author: 'mesohappy',
-    url: 'http://www.u.nocando.com',
-    likes: 5
-  }
+    test('a valid blog can be added', async () => {
+      await helper.injectToBlogsDb(helper.listWithManyBlogsSimple)
+      const blogsInjected = await helper.blogsInDb()
 
-  await api
-    .post('/api/blogs')
-    .send(blogNew)
-    .expect(201)
-    .expect('Content-Type', /application\/json/)
+      const blogNew = {
+        title: helper.generateTestGuid(),
+        author: 'mesohappy',
+        url: 'http://www.u.nocando.com',
+        likes: 5
+      }
 
-  const blogsFresh = await helper.blogsInDb()
-  assert.strictEqual(blogsFresh.length, blogsInjected.length + 1)
-  logger.debug('after new post', blogsFresh.map(b => b.title))
+      await api
+        .post('/api/blogs')
+        .send(blogNew)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
 
-  const blogFresh = blogsFresh.find(blog => blog.title === blogNew.title)
+      const blogsFresh = await helper.blogsInDb()
+      assert.strictEqual(blogsFresh.length, blogsInjected.length + 1)
+      logger.debug('after new post', blogsFresh.map(b => b.title))
 
-  assert.deepStrictEqual(omit(blogFresh, ['id']), blogNew)
-})
+      const blogFresh = blogsFresh.find(blog => blog.title === blogNew.title)
 
-test('a blog with no likes gets zero likes', async () => {
-  await helper.injectToBlogsDb(helper.listWithManyBlogsSimple)
-  const blogsInjected = await helper.blogsInDb()
+      assert.deepStrictEqual(omit(blogFresh, ['id']), blogNew)
+    })
 
-  const blogNew = {
-    title: helper.generateTestGuid(),
-    author: 'Mesohappy Again',
-    url: 'http://www.u.nolikes.com'
-  }
+    test('a blog with no likes gets zero likes', async () => {
+      await helper.injectToBlogsDb(helper.listWithManyBlogsSimple)
+      const blogsInjected = await helper.blogsInDb()
 
-  await api
-    .post('/api/blogs')
-    .send(blogNew)
-    .expect(201)
-    .expect('Content-Type', /application\/json/)
+      const blogNew = {
+        title: helper.generateTestGuid(),
+        author: 'Mesohappy Again',
+        url: 'http://www.u.nolikes.com'
+      }
 
-  const blogsFresh = await helper.blogsInDb()
-  assert.strictEqual(blogsFresh.length, blogsInjected.length + 1)
+      await api
+        .post('/api/blogs')
+        .send(blogNew)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
 
-  const blogFresh = blogsFresh.find(blog => blog.title === blogNew.title)
-  assert.deepStrictEqual(omit(blogFresh, ['id']), { ...blogNew, likes: 0 })
-})
+      const blogsFresh = await helper.blogsInDb()
+      assert.strictEqual(blogsFresh.length, blogsInjected.length + 1)
 
-test('a blog with no title or url gets 400', async () => {
-  await helper.injectToBlogsDb(helper.listWithManyBlogsSimple)
-  const blogsInjected = await helper.blogsInDb()
+      const blogFresh = blogsFresh.find(blog => blog.title === blogNew.title)
+      assert.deepStrictEqual(omit(blogFresh, ['id']), { ...blogNew, likes: 0 })
+    })
+  })
 
-  const blogNew = {
-    title: helper.generateTestGuid(),
-    author: 'Mesohappy Again',
-    likes: 0,
-    url: 'http://www.u.nolikes.com'
-  }
+  describe('Creating blogs unsuccessfully', () => {
 
-  await api
-    .post('/api/blogs')
-    .send(omit(blogNew, ['url']))
-    .expect(400)
-    // status: 400, text: '{"error":"Blog validation failed: url: url missing"}'
+    test('a blog with no title or url gets 400', async () => {
+      await helper.injectToBlogsDb(helper.listWithManyBlogsSimple)
+      const blogsInjected = await helper.blogsInDb()
 
-  await api
-    .post('/api/blogs')
-    .send(omit(blogNew, ['author']))
-    .expect(400)
+      const blogNew = {
+        title: helper.generateTestGuid(),
+        author: 'Mesohappy Again',
+        likes: 0,
+        url: 'http://www.u.nolikes.com'
+      }
 
-  await api
-    .post('/api/blogs')
-    .send(omit(blogNew, ['author', 'url']))
-    .expect(400)
+      await api
+        .post('/api/blogs')
+        .send(omit(blogNew, ['url']))
+        .expect(400)
+      // status: 400, text: '{"error":"Blog validation failed: url: url missing"}'
 
-  const blogsFresh = await helper.blogsInDb()
-  assert.strictEqual(blogsFresh.length, blogsInjected.length)
+      await api
+        .post('/api/blogs')
+        .send(omit(blogNew, ['author']))
+        .expect(400)
 
-  const newBlogs = blogsFresh.filter(blog => blog.title === blogNew.title)
-  assert(newBlogs.length === 0)
-})
+      await api
+        .post('/api/blogs')
+        .send(omit(blogNew, ['author', 'url']))
+        .expect(400)
 
-after(async () => {
-  await mongoose.connection.close()
+      const blogsFresh = await helper.blogsInDb()
+      assert.strictEqual(blogsFresh.length, blogsInjected.length)
+
+      const newBlogs = blogsFresh.filter(blog => blog.title === blogNew.title)
+      assert(newBlogs.length === 0)
+    })
+  })
+
+  describe('Deleting  entries', () => {
+    test('a specific blog entry can be deleted', async () => {
+      const blogNew = {
+        title: helper.generateTestGuid(),
+        author: 'mesohappy',
+        url: 'http://www.u.nocando.com',
+      }
+
+      await helper.injectToBlogsDb([blogNew])
+      await helper.injectToBlogsDb(helper.listWithManyBlogsSimple)
+      const entriesInDbStart = await helper.blogsInDb()
+      const blog = entriesInDbStart.find(blog => blog.title === blogNew.title)
+      logger.debug('blog:', !blog.id ? blog.id : 'missing!!')
+
+      await api.delete(`/api/blogs/${blog.id}`)
+        .expect(204)
+
+      const entriesInDbAfterDelete = await helper.blogsInDb()
+      const titlesInDbAfterDelete = entriesInDbAfterDelete.map(e => e.title)
+
+      assert.strictEqual(entriesInDbAfterDelete.length,
+        helper.listWithManyBlogsSimple.length)
+      assert( ! titlesInDbAfterDelete.includes(blogNew.title))
+    })
+
+    test('the last blog entry can be deleted', async () => {
+      const blogNew = {
+        title: helper.generateTestGuid(),
+        author: 'mesohappy',
+        url: 'http://www.u.nocando.com',
+      }
+
+      await helper.injectToBlogsDb([blogNew])
+      const entries = await helper.blogsInDb()
+      assert(entries.length === 1)
+      assert(entries[0].title === blogNew.title)
+      logger.debug('last entry for deletion:', entries[0].id ? entries[0].id : 'missing!!')
+
+      await api.delete(`/api/blogs/${entries[0].id}`)
+        .expect(204)
+
+      const entriesInDbAfterDelete = await helper.blogsInDb()
+      assert(entriesInDbAfterDelete.length === 0)
+    })
+  })
+
+  after(async () => {
+    await mongoose.connection.close()
+  })
 })

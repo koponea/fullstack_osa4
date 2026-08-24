@@ -15,8 +15,6 @@ blogsRouter.get('/:id', async (request, response) => {
   else response.status(404).json({ error: 'missing entry' })
 })
 
-// this controller not requested at this point of ex,
-// but given for easier debugging
 blogsRouter.delete('/:id', async (request, response) => {
   await Blog.findByIdAndDelete(request.params.id)
   response.status(204).end()
