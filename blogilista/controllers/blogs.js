@@ -9,27 +9,24 @@ blogsRouter.get('/', async (request, response) => {
 
 // this controller not requested at this point of ex,
 // but given for easier debugging
-blogsRouter.get('/:id', (request, response, next) =>
-  Blog.findById(request.params.id).then(person => {
-    if (person) response.json(person)
-    else response.status(404).json({ error: 'missing entry' })
-  }).catch(error => next(error))
-)
+blogsRouter.get('/:id', async (request, response) => {
+  const blog = await Blog.findById(request.params.id)
+  if (blog) response.json(blog)
+  else response.status(404).json({ error: 'missing entry' })
+})
 
 // this controller not requested at this point of ex,
 // but given for easier debugging
-blogsRouter.delete('/:id', (request, response, next) =>
-  Blog.findByIdAndDelete(request.params.id)
-    .then(() => response.status(204).end())
-    .catch(error => next(error))
-)
+blogsRouter.delete('/:id', async (request, response) => {
+  await Blog.findByIdAndDelete(request.params.id)
+  response.status(204).end()
+})
 
-blogsRouter.post('/', (request, response) => {
+blogsRouter.post('/', async (request, response) => {
   const blog = new Blog(request.body)
 
-  blog.save().then((result) => {
-    response.status(201).json(result)
-  })
+  const result = await blog.save()
+  response.status(201).json(result)
 })
 
 module.exports = blogsRouter

@@ -1,5 +1,6 @@
 const { omit, isNil }  = require('lodash')
 const Blog = require('../models/blog')
+const logger = require('../utils/logger')
 
 const anonymous = ''
 
@@ -49,6 +50,10 @@ const blogsInDb = async () => {
   return blogs.map(blog => blog.toJSON())
 }
 
+// Math will do since the DB is wiped out at test setups
+const generateTestGuid = () =>
+  Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+
 module.exports = {
   anonymous,
   listWithNoBlogList,
@@ -59,5 +64,6 @@ module.exports = {
   omitInternals,
   injectToBlogsDb,
   testInitBlogsDb,
-  blogsInDb
+  blogsInDb,
+  generateTestGuid
 }
