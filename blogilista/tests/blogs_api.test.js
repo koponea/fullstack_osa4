@@ -3,8 +3,10 @@ const { test, after, beforeEach } = require('node:test')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
+//const Blog = require('../models/blog')
 const helper = require('./test_helper')
 const logger = require('../utils/logger.js')
+const { includes } = require('lodash')
 
 const api = supertest(app) // kääräisy,
 // tämä myös käynnistää itse app:in to an ephemeral port
@@ -28,6 +30,21 @@ test('all blogs are returned', async () => {
 
   const response = await api.get('/api/blogs')
   assert.strictEqual(response.body.length, helper.listWithManyBlogsSimple.length)
+})
+
+test('blog is identified with the id attribute', async () => {
+  await helper.injectToBlogsDb(helper.listWithOneBlog)
+  // const blogs = await helper.blogsInDb()
+  // logger.debug('test all returned titles', blogs.map(b => b.title))
+
+  const response = await api.get('/api/blogs/')
+  assert.strictEqual(response.body.length, 1)
+
+  logger.debug('test identify by "id"', Object.keys(response.body[0]))
+  assert(Object.keys(response.body[0]).includes('id'))
+
+  const responseSingle = await api.get(`/api/blogs/${response.body[0].id}`)
+  assert.deepStrictEqual(response.body[0], responseSingle.body)
 })
 
 after(async () => {
