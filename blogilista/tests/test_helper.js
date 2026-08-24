@@ -1,6 +1,5 @@
 const { omit, isNil }  = require('lodash')
 const Blog = require('../models/blog')
-const logger = require('../utils/logger')
 
 const anonymous = ''
 

@@ -96,6 +96,40 @@ test('a blog with no likes gets zero likes', async () => {
   assert.deepStrictEqual(omit(blogFresh, ['id']), { ...blogNew, likes: 0 })
 })
 
+test('a blog with no title or url gets 400', async () => {
+  await helper.injectToBlogsDb(helper.listWithManyBlogsSimple)
+  const blogsInjected = await helper.blogsInDb()
+
+  const blogNew = {
+    title: helper.generateTestGuid(),
+    author: 'Mesohappy Again',
+    likes: 0,
+    url: 'http://www.u.nolikes.com'
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(omit(blogNew, ['url']))
+    .expect(400)
+    // status: 400, text: '{"error":"Blog validation failed: url: url missing"}'
+
+  await api
+    .post('/api/blogs')
+    .send(omit(blogNew, ['author']))
+    .expect(400)
+
+  await api
+    .post('/api/blogs')
+    .send(omit(blogNew, ['author', 'url']))
+    .expect(400)
+
+  const blogsFresh = await helper.blogsInDb()
+  assert.strictEqual(blogsFresh.length, blogsInjected.length)
+
+  const newBlogs = blogsFresh.filter(blog => blog.title === blogNew.title)
+  assert(newBlogs.length === 0)
+})
+
 after(async () => {
   await mongoose.connection.close()
 })

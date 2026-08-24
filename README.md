@@ -43,6 +43,5 @@ Tämä repositorio sisältää kurssin osan 4 tehtävien palautuksen (4.X)
 #### 4b backendin testaaminen
 
 - blogilista UT: test_help.js lisäys myös 4a:n testidatat
-- blogilistan testit, stepit 1-4 (testi 4.8-4.11*) GET, POST ja 'id' attribuutti,
-  default arvo modelissa
-  
+- blogilistan testit, stepit 1-5 (testi 4.8-4.12*) GET, POST ja 'id' attribuutti,
+  default arvo ja olemassaolovaatimus modelissa
