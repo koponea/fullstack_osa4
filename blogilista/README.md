@@ -1,6 +1,6 @@
 # Blogilista backend
 
-Fullstack -kurssin blogilista backend ja UT -tehtävien 4.1 - 4.7 palautus
+Fullstack -kurssin blogilista backend ja UT -tehtävien 4.1 - 4.8 palautus
 
 - npm-projektimuotoinen backend
 - Projekti jaettu moduuleihin
@@ -8,3 +8,5 @@ Fullstack -kurssin blogilista backend ja UT -tehtävien 4.1 - 4.7 palautus
 - Apufunktioita ja yksikkötestejä, stepit 1-5 (tehtävät 4.3-4.7*),
   dummy, total_likes, favourite_blog, most_bloggers ja most_likes -testit sekä kohdefunktiot
   - blogilista UT: test_help.js lisäys myös edellisen 4a:n testidatat
+- Blogilistan testit: step 1 (tehtävä 4.8)
+  - GET api/blogs testi ja operaatio: async/await -käyttö promisejen sijaan

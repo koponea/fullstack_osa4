@@ -43,3 +43,4 @@ Tämä repositorio sisältää kurssin osan 4 tehtävien palautuksen (4.X)
 #### 4b backendin testaaminen
 
 - blogilista UT: test_help.js lisäys myös 4a:n testidatat
+- blogilistan testit, steppi 1 (testi 4.8) GET

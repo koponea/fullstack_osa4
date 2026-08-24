@@ -1,3 +1,4 @@
+const { omit, isNil }  = require('lodash')
 const Blog = require('../models/blog')
 
 const anonymous = ''
@@ -29,11 +30,34 @@ const listWithAlsoNoLikes = [
   { _id: '5a406aa61b54a676234d17f8', title: 'Mindblowing 6', author: 'Zooty', url: 'http://www.helsinki.fi/Harmful6.html', likes: 6, __v: 0 } //
 ]
 
+const omitInternals = blog => omit(blog, ['_id', '__v'] )
+
+const injectToBlogsDb = async ( blogsToInsert = [] ) => {
+  // or await Note.insertMany(helper.initialNotes)
+  const blogObjects = blogsToInsert.map(blog => new Blog(omitInternals(blog)))
+  const promiseArray = blogObjects.map(blog => blog.save())
+  await Promise.all(promiseArray)
+}
+
+const testInitBlogsDb = async ( blogsToInsert = [] ) => {
+  await Blog.deleteMany({})
+  if (!isNil(blogsToInsert)) await injectToBlogsDb(blogsToInsert)
+}
+
+const blogsInDb = async () => {
+  const blogs = await Blog.find({})
+  return blogs.map(blog => blog.toJSON())
+}
+
 module.exports = {
   anonymous,
   listWithNoBlogList,
   listWithNoBlogs,
   listWithOneBlog,
   listWithManyBlogsSimple,
-  listWithAlsoNoLikes
+  listWithAlsoNoLikes,
+  omitInternals,
+  injectToBlogsDb,
+  testInitBlogsDb,
+  blogsInDb
 }
