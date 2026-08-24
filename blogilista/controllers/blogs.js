@@ -7,8 +7,6 @@ blogsRouter.get('/', async (request, response) => {
   response.json(blogs)
 })
 
-// this controller not requested at this point of ex,
-// but given for easier debugging
 blogsRouter.get('/:id', async (request, response) => {
   const blog = await Blog.findById(request.params.id)
   if (blog) response.json(blog)
@@ -18,6 +16,21 @@ blogsRouter.get('/:id', async (request, response) => {
 blogsRouter.delete('/:id', async (request, response) => {
   await Blog.findByIdAndDelete(request.params.id)
   response.status(204).end()
+})
+
+blogsRouter.put('/:id', async (request, response) => {
+  const { title, author, url, likes } = request.body
+
+  const blog = await Blog.findById(request.params.id)
+  blog || response.status(404).json({ error: 'missing entry, cannot update' })
+
+  if (title) blog.title = title
+  if (author) blog.author = author
+  if (url) blog.url = url
+  if (likes) blog.likes = likes
+
+  const updated = await blog.save()
+  response.status(200).json(updated) // all in the previous entry - findById
 })
 
 blogsRouter.post('/', async (request, response) => {

@@ -30,6 +30,20 @@ const listWithAlsoNoLikes = [
   { _id: '5a406aa61b54a676234d17f8', title: 'Mindblowing 6', author: 'Zooty', url: 'http://www.helsinki.fi/Harmful6.html', likes: 6, __v: 0 } //
 ]
 
+const nonExistentId = async () => {
+  // highly non-probable that this id is ever reused
+  const blog = new Blog({
+    title: 'willremovethissoon',
+    author: 'Zooty',
+    url: 'http://www.helsinki.fi',
+    likes: 0
+  })
+  const one = await blog.save()
+  await Blog.deleteOne({ title: blog.title })
+  console.log('none-existent id:', one._id.toString())
+  return one._id.toString()
+}
+
 const omitInternals = blog => omit(blog, ['_id', '__v'] )
 
 const injectToBlogsDb = async ( blogsToInsert = [] ) => {
@@ -60,6 +74,7 @@ module.exports = {
   listWithOneBlog,
   listWithManyBlogsSimple,
   listWithAlsoNoLikes,
+  nonExistentId,
   omitInternals,
   injectToBlogsDb,
   testInitBlogsDb,

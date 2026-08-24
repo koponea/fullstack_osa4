@@ -5,6 +5,7 @@ const supertest = require('supertest')
 const app = require('../app')
 const helper = require('./test_helper')
 const logger = require('../utils/logger.js')
+const Blog = require('../models/blog.js')
 const { omit }  = require('lodash')
 
 const api = supertest(app) // kääräisy,
@@ -150,7 +151,6 @@ describe('Blogs main api tests', () => {
       await helper.injectToBlogsDb(helper.listWithManyBlogsSimple)
       const entriesInDbStart = await helper.blogsInDb()
       const blog = entriesInDbStart.find(blog => blog.title === blogNew.title)
-      logger.debug('blog:', !blog.id ? blog.id : 'missing!!')
 
       await api.delete(`/api/blogs/${blog.id}`)
         .expect(204)
@@ -181,6 +181,40 @@ describe('Blogs main api tests', () => {
 
       const entriesInDbAfterDelete = await helper.blogsInDb()
       assert(entriesInDbAfterDelete.length === 0)
+    })
+  })
+
+  describe('Edit entries', () => {
+    test('a specific blog entry can be edited', async () => {
+      await helper.injectToBlogsDb(helper.listWithManyBlogsSimple)
+      const entries = await helper.blogsInDb()
+      const blog = entries.find(blog => blog.likes > 0)
+      logger.debug('blog id:', blog.id ? blog.id : 'missing!!')
+
+      await api
+        .put(`/api/blogs/${blog.id}`)
+        .send({ ...blog, likes:110 })
+        .expect(200)
+
+      const entriesInDbAfterPut = await helper.blogsInDb()
+      assert.strictEqual(entriesInDbAfterPut.length, entries.length )
+
+      const entryAfterPut = await api.get(`/api/blogs/${blog.id}`)
+      assert.deepStrictEqual(entryAfterPut.body,  { ...blog, likes:110 })
+    })
+
+    test('a non-existent blog entry cannot be edited', async () => {
+      await helper.injectToBlogsDb(helper.listWithManyBlogsSimple)
+      const entries = await helper.blogsInDb()
+      const blogId = await helper.nonExistentId()
+
+      await api
+        .put(`/api/blogs/${blogId}`)
+        .send({ ...entries[0], likes:111 })
+        .expect(404)
+
+      const entriesInDbAfterPut = await helper.blogsInDb()
+      assert.strictEqual(entriesInDbAfterPut.length, entries.length )
     })
   })
 

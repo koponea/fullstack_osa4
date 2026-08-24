@@ -1,6 +1,6 @@
 # Blogilista backend
 
-Fullstack -kurssin blogilista backend ja UT -tehtävien 4.1 - 4.13 palautus
+Fullstack -kurssin blogilista backend ja UT -tehtävien 4.1 - 4.14 palautus
 
 - npm-projektimuotoinen backend
 - Projekti jaettu moduuleihin
@@ -11,4 +11,4 @@ Fullstack -kurssin blogilista backend ja UT -tehtävien 4.1 - 4.13 palautus
 - Blogilistan testit: stepit 1-5 (testi 4.8-4.12*)
   - GET, POST api/blogs testi ja operaatio: async/await -käyttö promisejen sijaan,
     id- attribuutti yksilöintitietona _id sijaan apeilta, default arvo ja olemassaolovaatimus modelissa
-- Blogilistan laajennus: stepi 1 (testi 4.13) DELETE ja testit
+- Blogilistan laajennus: stepi 1-2 (testi 4.13-4.14*) DELETE, PUT ja testit
