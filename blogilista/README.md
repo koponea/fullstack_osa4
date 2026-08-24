@@ -1,9 +1,10 @@
 # Blogilista backend
 
-Fullstack -kurssin blogilista backend ja UT -tehtävien 4.1 - 4.5 palautus
+Fullstack -kurssin blogilista backend ja UT -tehtävien 4.1 - 4.7 palautus
 
 - npm-projektimuotoinen backend
 - Projekti jaettu moduuleihin
 - Projektiin lisätty verrattuna annettuun index.js:ään hieman debuggausta helpottavia asioita sekä luentomateriaalissa esimekeissä annettuja osioita pienesti paranneltuna, mm. virheenhallintaa, loggausta sekä delete-api, get /:id ja tuntemattomen endpointin käsittely
-- Apufunktioita ja yksikkötestejä, stepit 1-4 (tehtävät 4.3-4.6*),
-  dummy, total_likes, favourite_blog ja most_bloggers -testit sekä kohdefunktiot
+- Apufunktioita ja yksikkötestejä, stepit 1-5 (tehtävät 4.3-4.7*),
+  dummy, total_likes, favourite_blog, most_bloggers ja most_likes -testit sekä kohdefunktiot
+  - blogilista UT: test_help.js lisäys myös edellisen 4a:n testidatat

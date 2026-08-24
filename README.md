@@ -2,7 +2,7 @@
 
 Tämä repositorio sisältää kurssin osan 4 tehtävien palautuksen (4.X)
 
-## Palautusrepositoriot
+## Palautusrepositoriot, vapaa kuvaus tehtävistä
 
 ### fullstack_osa1
 
@@ -29,11 +29,17 @@ Tämä repositorio sisältää kurssin osan 4 tehtävien palautuksen (4.X)
 
 ### fullstack_osa4
 
+#### 4a projektin rakenne ja testauksen alkeet
+
 - Blogilista backend, step 1 (tehtävä 4.1),
   annetun index.js:n muuttaminen npm-projektiksi.
   Sisältää mongodb-urlin sisältävän env-muuttujan käyttöönoton.
   Ei sisällä apien muuttamisia eikä BE-virheenkäsitelyn lisäämistä tms.
 - Blogilista backend, step 2 (tehtävä 4.2),
   Blogilistan backendin modulointi ja täydennetty myös virheenhallintaa, loggausta ja apikäsittelyä
-- Apufunktioita ja yksikkötestejä, stepit 1-4 (tehtävät 4.3-4.6*),
-  dummy, total_likes, favourite_blog ja most_bloggers -testit sekä kohdefunktiot
+- Apufunktioita ja yksikkötestejä, stepit 1-5 (tehtävät 4.3-4.7*),
+  dummy, total_likes, favourite_blog, most_bloggers ja most_likes -testit sekä kohdefunktiot
+
+#### 4b backendin testaaminen
+
+- blogilista UT: test_help.js lisäys myös 4a:n testidatat
