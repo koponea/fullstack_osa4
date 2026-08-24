@@ -54,7 +54,8 @@ test('a valid blog can be added', async () => {
   const blogNew = {
     title: helper.generateTestGuid(),
     author: 'mesohappy',
-    url: 'http://www.u.nocando.com'
+    url: 'http://www.u.nocando.com',
+    likes: 5
   }
 
   await api
@@ -70,6 +71,29 @@ test('a valid blog can be added', async () => {
   const blogFresh = blogsFresh.find(blog => blog.title === blogNew.title)
 
   assert.deepStrictEqual(omit(blogFresh, ['id']), blogNew)
+})
+
+test('a blog with no likes gets zero likes', async () => {
+  await helper.injectToBlogsDb(helper.listWithManyBlogsSimple)
+  const blogsInjected = await helper.blogsInDb()
+
+  const blogNew = {
+    title: helper.generateTestGuid(),
+    author: 'Mesohappy Again',
+    url: 'http://www.u.nolikes.com'
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(blogNew)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const blogsFresh = await helper.blogsInDb()
+  assert.strictEqual(blogsFresh.length, blogsInjected.length + 1)
+
+  const blogFresh = blogsFresh.find(blog => blog.title === blogNew.title)
+  assert.deepStrictEqual(omit(blogFresh, ['id']), { ...blogNew, likes: 0 })
 })
 
 after(async () => {
