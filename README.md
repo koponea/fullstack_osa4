@@ -1,6 +1,6 @@
 # Repositorio fullstack_osa4
 
-Tämä repositorio sisältää kurssin osan 4 tehtävien palautuksen (4.X)
+Tämä repositorio sisältää kurssin osan 4 tehtävien palautuksen (4.X) Tehtävien toteutuksen vaatimukset on kuvattu kurssin sivuilla, https://fullstackopen.com/osa4
 
 ## Palautusrepositoriot, vapaa kuvaus tehtävistä
 
@@ -25,9 +25,9 @@ Tämä repositorio sisältää kurssin osan 4 tehtävien palautuksen (4.X)
   hae yksittäinen entry, /info, validointivirheet fe:hen.
 - Viedään tietokantaa käyttävä sovellus nettiin (tehtävä 3.21)
 - Eslint konfigurointi (tehtävä 3.22)
-- Backend production-frontendilla Renderissä, url: '<https://fullstack-osa3-u4wc.onrender.com>'
+- Tämän osan Puhelinluettelo-appin backend production-frontendilla on Renderissä (ei käynnissä yleensä aikalaskutuksen vuoksi), url: '<https://fullstack-osa3-u4wc.onrender.com>'
 
-### fullstack_osa4
+### fullstack_osa4 (ongoing, refactoring)
 
 #### 4a projektin rakenne ja testauksen alkeet
 
@@ -46,3 +46,6 @@ Tämä repositorio sisältää kurssin osan 4 tehtävien palautuksen (4.X)
 - blogilistan testit, stepit 1-5 (testi 4.8-4.12*) GET, POST ja 'id' attribuutti,
   default arvo ja olemassaolovaatimus modelissa
 - blogilistan laajennus: stepit 1-2 (testit 4.13-4.14*) DELETE, PUT ja testit
+- FIXME & TODO debt: ... tehtäviä tulossa 4.14-4.23 (token- perustainen access ja käyttäjäkanta) ... versioissa esim ylimäärästä kommentointia dokumentaatiomielessä vielä koodin seassa ja muotoilua ja refaktorointia lisättävä
+
+__KOODI JA TESTIT AJANTASAISESTI YHTENEVÄT, JÄRJESTYKSESSÄ KAIKISSA REPOISSA JA _KAIKKI TEHTÄVÄT OVAT VALMIITA_ (kaikki materiaalissa annetut tehtävät palautettu/tehty)__
