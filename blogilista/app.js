@@ -2,6 +2,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 const config = require('./utils/config')
 const blogsRouter = require('./controllers/blogs')
+const usersRouter = require('./controllers/users')
 const middleware = require('./utils/middleware')
 const logger = require('./utils/logger')
 
@@ -20,6 +21,7 @@ mongoose.connect(mongoUrl, { family: 4 })
 app.use(express.json())  // before the requestLogger to get reqbody
 app.use(middleware.requestLogger)
 app.use('/api/blogs', blogsRouter)  // here binding to A routebase
+app.use('/api/users', usersRouter)
 
 // middleware for a route not defined
 app.use(middleware.unknownEndpoint)

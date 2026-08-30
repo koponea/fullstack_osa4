@@ -1,5 +1,9 @@
-const { omit, isNil }  = require('lodash')
 const Blog = require('../models/blog')
+const User = require('../models/user')
+const bcrypt = require('bcrypt')
+const { SALT_ROUNDS } = require('../utils/config')
+const { omit, isNil }  = require('lodash')
+const logger = require('../utils/logger')
 
 const anonymous = ''
 
@@ -44,18 +48,65 @@ const nonExistentId = async () => {
   return one._id.toString()
 }
 
-const omitInternals = blog => omit(blog, ['_id', '__v'] )
+const omitInternals = entity => omit(entity, ['_id', '__v'] )
 
-const injectToBlogsDb = async ( blogsToInsert = [] ) => {
-  // or await Note.insertMany(helper.initialNotes)
-  const blogObjects = blogsToInsert.map(blog => new Blog(omitInternals(blog)))
-  const promiseArray = blogObjects.map(blog => blog.save())
-  await Promise.all(promiseArray)
+const buildUserObject = async ({ password, username, name }) => {
+  const passwordHash = await bcrypt.hash(password, SALT_ROUNDS)
+  const user = new User({ username, passwordHash })
+  if (name) user.name = name
+  return user
 }
 
-const testInitBlogsDb = async ( blogsToInsert = [] ) => {
+const buildComparableUser = user => {
+  console.log('buildComparableUser', user)
+  const newU = {
+    id: user.id ? user.id : user._id.tostring(),
+    username: user.username,
+  }
+  if (user.name) newU.name = user.name
+  if (user.blogs) newU.blogs = user.blogs
+  console.log('buildComparableUser', newU)
+  return newU
+}
+
+/*
+ * Injecting the blogs for existing users,
+ * new blogs and blogs added tot the users
+ */
+const injectToBlogsDbUpdateUsers = async (blogsToInsert = [], users) => {
+  // or await Blog.insertMany(whatnotBlogs) e.g.
+  const blogObjects = blogsToInsert.map((blog, index) => new Blog({
+    ...omitInternals(blog),
+    user: users[index] ? users[index].id : users[0].id // some distr
+  }))
+  const promiseArrayBlogs = blogObjects.map(blog => blog.save())
+  await Promise.all(promiseArrayBlogs)
+
+  const userObjectsAll = await User.find({})
+  // logger.debug('userObjectsAll >>>>>>>>>>>>>>>', userObjectsAll)
+
+  const userIdListUsed = blogObjects.map(n => n.user.toString())  //ok
+
+  const userObjectsToSave = userObjectsAll
+    .filter(userObj => userIdListUsed.includes(userObj.id)) //ok
+  //logger.debug('userObjectsToSave', userObjectsToSave)
+
+  for (const user of userObjectsToSave) {
+    let updates = blogObjects.filter(blogObj => blogObj.user.toString() === user.id)
+    //logger.debug('updates --------->>>>>>>>>>>>>>>', updates)
+
+    updates = updates.map(update => update._id.toString())
+    user.blogs ? user.blogs = user.blogs.concat(updates) : user.blogs = [updates]
+  }
+  //logger.debug('updated userObjectsToSave !!!!!!!', userObjectsToSave)
+
+  const promiseArrayUsers = userObjectsToSave.map(user => user.save())
+  await Promise.all(promiseArrayUsers) //.then(console.log)
+}
+
+const testInitBlogsDb = async ( blogsToInsert = [], users ) => {
   await Blog.deleteMany({})
-  if (!isNil(blogsToInsert)) await injectToBlogsDb(blogsToInsert)
+  if (!isNil(blogsToInsert)) await injectToBlogsDbUpdateUsers(blogsToInsert, users)
 }
 
 const blogsInDb = async () => {
@@ -63,9 +114,49 @@ const blogsInDb = async () => {
   return blogs.map(blog => blog.toJSON())
 }
 
+const usersInDb = async () => {
+  const users = await User.find({})
+  return users.map(user => user.toJSON())
+}
+
 // Math will do since the DB is wiped out at test setups
 const generateTestGuid = () =>
   Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+
+const testInitUsersDb = async ({ password = 'sekret', username = 'root', name = null } = {}) => {
+  await User.deleteMany({})
+  const rootUser = await buildUserObject({ password, username })
+  if (name) rootUser.name = name
+
+  const savedRootUser =  await rootUser.save()
+  return savedRootUser
+}
+
+const wipeUserDb = () =>
+  usersInDb().then(inUsersDb => {
+    for (const user of inUsersDb) {
+      User.deleteOne({ _id: user.id }).then(resp =>
+        logger.debug('wipeUserDb, deleted?', resp, user.username, user.id))
+    }
+  }).then(() => usersInDb().then(console.log))
+
+const wipeBlogsDb = () =>
+  blogsInDb().then(inBlogsDb => {
+    for (const note of inBlogsDb) {
+      Blog.deleteOne({ _id: note.id }).then(resp =>
+        logger.debug('wipeBlogsDb, deleted?', resp, note.id))
+    }
+  }).then(() => blogsInDb().then(console.log))
+
+const wipeUserAndBlogsDbsPromises = () =>
+  //const userClean = await User.deleteMany({}) // nah if many tests
+  wipeUserDb().then(() => wipeBlogsDb())
+
+const wipeUserAndBlogsDbs = async () => {
+  const userClean = await User.deleteMany({})
+  const blogsClean = await Blog.deleteMany({})
+  logger.debug('deleted users, blogs', userClean, blogsClean)
+}
 
 module.exports = {
   anonymous,
@@ -74,10 +165,16 @@ module.exports = {
   listWithOneBlog,
   listWithManyBlogsSimple,
   listWithAlsoNoLikes,
+  buildUserObject,
+  buildComparableUser,
   nonExistentId,
   omitInternals,
-  injectToBlogsDb,
+  injectToBlogsDbUpdateUsers,
   testInitBlogsDb,
+  testInitUsersDb,
+  usersInDb,
   blogsInDb,
-  generateTestGuid
+  generateTestGuid,
+  wipeUserAndBlogsDbs,
+  wipeUserAndBlogsDbsPromises,
 }

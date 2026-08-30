@@ -1,6 +1,10 @@
 // all the route eventhandlers
 const blogsRouter = require('express').Router()
-const Blog = require('../models/blog.js')
+const Blog = require('../models/blog')
+const User = require('../models/user')
+const logger = require('../utils/logger')
+const { omit }  = require('lodash')
+
 
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({})
@@ -34,10 +38,24 @@ blogsRouter.put('/:id', async (request, response) => {
 })
 
 blogsRouter.post('/', async (request, response) => {
-  const blog = new Blog(request.body)
+  const body = request.body
 
-  const result = await blog.save()
-  response.status(201).json(result)
+  const blog = new Blog(omit(body, ['userId']))
+  const user = await User.findById(body.userId)
+  if (!user) {
+    return response.status(400).json({ error: 'userid missing or not valid' })
+  }
+  blog.user = user._id
+
+  const savedBlog = await blog.save()
+  logger.debug('added', savedBlog)
+
+  user.blogs ?
+    user.blogs = user.blogs.concat(savedBlog._id) :
+    user.blogs = [savedBlog._id]
+  await user.save().then(console.log)
+
+  response.status(201).json(savedBlog)
 })
 
 module.exports = blogsRouter

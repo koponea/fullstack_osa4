@@ -46,6 +46,12 @@ Tämä repositorio sisältää kurssin osan 4 tehtävien palautuksen (4.X) Teht�
 - blogilistan testit, stepit 1-5 (testi 4.8-4.12*) GET, POST ja 'id' attribuutti,
   default arvo ja olemassaolovaatimus modelissa
 - blogilistan laajennus: stepit 1-2 (testit 4.13-4.14*) DELETE, PUT ja testit
-- FIXME & TODO debt: ... tehtäviä tulossa 4.14-4.23 (token- perustainen access ja käyttäjäkanta) ... versioissa esim ylimäärästä kommentointia dokumentaatiomielessä vielä koodin seassa ja muotoilua ja refaktorointia lisättävä
+
+#### 4c ja d käyttäjien hallinta ja tokenperustainen kirjautuminen
+
+- Blogilistan laajennus: stepit 3-4 (testit 4.15-4.16).
+  Käyttäjien tietokanta, POST ja GET sekä testit
+  Käyttäjän kredentiaalien validointi ja testit
+- FIXME & TODO debt: ... tehtäviä tulossa ... versioissa esim ylimäärästä kommentointia dokumentaatiomielessä vielä koodin seassa ja muotoilua ja refaktorointia lisättävä
 
 __KOODI JA TESTIT AJANTASAISESTI YHTENEVÄT, JÄRJESTYKSESSÄ KAIKISSA REPOISSA JA _KAIKKI TEHTÄVÄT OVAT VALMIITA_ (kaikki materiaalissa annetut tehtävät palautettu/tehty)__

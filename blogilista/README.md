@@ -1,6 +1,6 @@
 # Blogilista backend (ongoing, refactoring)
 
-Fullstack -kurssin blogilista backend ja UT -tehtävien 4.1 - 4.14 palautus...
+Fullstack -kurssin blogilista backend ja UT -tehtävien 4.1 - 4.16 palautus...
 
 Tehtävien toteutuksen vaatimukset on kuvattu kurssin sivuilla, https://fullstackopen.com/osa4
 
@@ -12,9 +12,10 @@ Tehtävien toteutuksen vaatimukset on kuvattu kurssin sivuilla, https://fullstac
 - Apufunktioita ja yksikkötestejä, stepit 1-5 (tehtävät 4.3-4.7*),
   dummy, total_likes, favourite_blog, most_bloggers ja most_likes -testit sekä kohdefunktiot
   - blogilista UT: test_help.js lisäys myös edellisen 4a:n testidatat
-- Blogilistan testit: stepit 1-5 (testi 4.8-4.12*)
+- Blogilistan testit: stepit 1-5 (tehtävät 4.8-4.12*)
   - GET, POST api/blogs testi ja operaatio: async/await -käyttö promisejen sijaan,
     id- attribuutti yksilöintitietona _id sijaan apeilta, default arvo ja olemassaolovaatimus modelissa
-- Blogilistan laajennus: stepi 1-2 (testi 4.13-4.14*) DELETE, PUT ja testit
+- Blogilistan laajennus: stepit 1-2 (tehtävät 4.13-4.14*) DELETE, PUT ja testit
+- __4c-d__: Blogilistan laajennus: stepit 3-4 (tehtävät 4.16). Käyttäjien tietokanta, POST ja GET, kredentiaalien validointi sekä testit
 
 __KOODI JA TESTIT AJANTASAISESTI YHTENEVÄT, JÄRJESTYKSESSÄ KAIKISSA REPOISSA JA _KAIKKI TEHTÄVÄT OVAT VALMIITA_ (kaikki materiaalissa annetut tehtävät palautettu/tehty)__

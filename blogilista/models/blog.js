@@ -7,6 +7,11 @@ const blogSchema = mongoose.Schema({
   likes: {
     type: Number,
     default: 0
+  },
+  // the owner of the entry, not necessarily the author
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
   }
 })
 
