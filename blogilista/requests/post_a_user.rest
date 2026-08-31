@@ -5,5 +5,5 @@ content-type: application/json
     "username": "nazzzz",
     "blogs": [],
     "name": "Sus",
-    "password": "s"
+    "password": "sus"
 }

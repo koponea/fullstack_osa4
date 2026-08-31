@@ -55,6 +55,7 @@ Tämä repositorio sisältää kurssin osan 4 tehtävien palautuksen (4.X) Teht�
   Populoidaan käyttäjän tiedot blogiin ja blogin käyttäjään
   tokenperustainen autentikointi login ja post.
   Steppi 8 (t4.20*) on autentikoinnin refaktorointia middlewareksi.
+  Steppi 9 (t4.21*), deletointi onnistuu vain blogin luojalta
 - FIXME & TODO debt: ... tehtäviä tulossa ... versioissa esim ylimäärästä kommentointia dokumentaatiomielessä vielä koodin seassa ja muotoilua ja refaktorointia lisättävä
 
 __KOODI JA TESTIT AJANTASAISESTI YHTENEVÄT, JÄRJESTYKSESSÄ KAIKISSA REPOISSA JA _KAIKKI TEHTÄVÄT OVAT VALMIITA_ (kaikki materiaalissa annetut tehtävät palautettu/tehty)__

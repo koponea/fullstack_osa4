@@ -12,7 +12,7 @@ const app = require('../app')
 const helper = require('./test_helper')
 const logger = require('../utils/logger.js')
 //const Blog = require('../models/blog.js')
-const { omit }  = require('lodash')
+const { omit } = require('lodash')
 
 const api = supertest(app) // kääräisy,
 // tämä myös käynnistää itse app:in to an ephemeral port
@@ -144,7 +144,7 @@ describe('Blogs main api tests', () => {
       const updatedUser = updatedUsers.body.find(user => user.id === blogNew.userId)
       logger.debug('updatedUser', updatedUser)
 
-      const found  = updatedUser.blogs.find(b => b.id === blog.id)
+      const found = updatedUser.blogs.find(b => b.id === blog.id)
       assert(found)
     })
 
@@ -232,8 +232,12 @@ describe('Blogs main api tests', () => {
 
   describe('Deleting  entries and verifying user data', () => {
     test('a specific blog entry can be deleted', async () => {
-      const testUsersOtherBlogs = [users[0]]
+      const otherUsers = [users[0]]
       const testUser = users[1] // teppo
+      const testCredentials = {
+        password: testUser.password, username: testUser.username
+      }
+      const { token } = await login(testCredentials)
 
       const blogNew = {
         title: helper.generateTestGuid(),
@@ -242,24 +246,27 @@ describe('Blogs main api tests', () => {
         userId: testUser.id
       }
 
+      logger.debug('blogNew', blogNew)
+
       await helper.injectToBlogsDbUpdateUsers([blogNew], [testUser])
       await helper.injectToBlogsDbUpdateUsers(
-        helper.listWithManyBlogsSimple, testUsersOtherBlogs
+        helper.listWithManyBlogsSimple, otherUsers
       )
       const entriesInDbStart = await helper.blogsInDb()
       const blog = entriesInDbStart.find(blog => blog.title === blogNew.title) //ok
-      logger.debug('blog',blog)
+      logger.debug('injected blog', blog)
 
 
       const usersInStart = await api.get('/api/users')
-      logger.debug('usersInStart',usersInStart.body)
+      logger.debug('usersInStart', usersInStart.body)
       const userInStart = usersInStart.body.find(user => user.id === testUser.id)
-      logger.debug('userInStart.blogs (blogNew)',userInStart.blogs) // no user in
+      logger.debug('userInStart.blogs (blogNew)', userInStart.blogs) // no user in
 
-      let blogInUsersBlogs  = userInStart.blogs.find(b => b.id === blog.id)
+      let blogInUsersBlogs = userInStart.blogs.find(b => b.id === blog.id)
       assert(blogInUsersBlogs)
 
-      await api.delete(`/api/blogs/${blog.id}`)
+      await api.delete(`/api/blogs/${blog.id}`) //ok
+        .auth(token, { type: 'bearer' })
         .expect(204)
 
       const entriesInDbAfterDelete = await helper.blogsInDb()
@@ -267,16 +274,21 @@ describe('Blogs main api tests', () => {
 
       assert.strictEqual(entriesInDbAfterDelete.length,
         helper.listWithManyBlogsSimple.length)
-      assert( ! titlesInDbAfterDelete.includes(blogNew.title))
+      assert(!titlesInDbAfterDelete.includes(blogNew.title))
 
       const updatedUsers = await api.get('/api/users')
       const updatedUser = updatedUsers.body.find(user => user.id === testUser.id)
-      const found  = updatedUser.blogs.find(b => b.id === blog.id)
+      const found = updatedUser.blogs.find(b => b.id === blog.id)
       assert(!found)
     })
 
     test('the last blog entry can be deleted', async () => {
       const testUser = users[1] // teppo
+      const testCredentials = {
+        password: testUser.password, username: testUser.username
+      }
+      const { token } = await login(testCredentials)
+
       const blogNew = {
         title: helper.generateTestGuid(),
         author: 'mesohappy',
@@ -292,6 +304,7 @@ describe('Blogs main api tests', () => {
       logger.debug('last entry for deletion:', entries[0].id ? entries[0].id : 'missing!!')
 
       await api.delete(`/api/blogs/${entries[0].id}`)
+        .auth(token, { type: 'bearer' })
         .expect(204)
 
       const entriesInDbAfterDelete = await helper.blogsInDb()
@@ -299,8 +312,47 @@ describe('Blogs main api tests', () => {
 
       const updatedUsers = await api.get('/api/users')
       const updatedUser = updatedUsers.body.find(user => user.id === testUser.id)
-      const found  = updatedUser.blogs.find(b => b.id === entries[0].id)
+      const found = updatedUser.blogs.find(b => b.id === entries[0].id)
       assert(!found)
+    }) 
+
+    test('a blog entry cannot be deleted by a non-creator', async () => {
+      const creator = users[1] // teppo
+      const nonCreator = users[0]
+      const nonCreatorCredentials = {
+        password: nonCreator.password, username: nonCreator.username
+      }
+      const { token } = await login(nonCreatorCredentials)
+
+      const blogNew = {
+        title: helper.generateTestGuid(),
+        author: 'mesohappy cannotdelete',
+        url: 'http://www.u.nocando.com',
+        userId: creator.id
+      }
+
+      await helper.injectToBlogsDbUpdateUsers([blogNew], [creator])
+      await helper.injectToBlogsDbUpdateUsers(
+        helper.listWithManyBlogsSimple, [nonCreator]
+      )
+      const entries = await helper.blogsInDb()
+      const blog = entries.find(blog => blog.title === blogNew.title) //ok
+
+      await api.delete(`/api/blogs/${blog.id}`)
+        .auth(token, { type: 'bearer' })
+        .expect(403)
+
+      const entriesInDbAfterDelete = await helper.blogsInDb()
+      const titlesInDbAfterDelete = entriesInDbAfterDelete.map(e => e.title)
+
+      assert.strictEqual(entriesInDbAfterDelete.length,
+        helper.listWithManyBlogsSimple.length + 1)
+      assert(titlesInDbAfterDelete.includes(blogNew.title))
+
+      const updatedUsers = await api.get('/api/users')
+      const updatedUser = updatedUsers.body.find(user => user.id === creator.id)
+      const found = updatedUser.blogs.find(b => b.id === blog.id)
+      assert(found)
     })
   })
 
@@ -321,14 +373,14 @@ describe('Blogs main api tests', () => {
       await api
         .put(`/api/blogs/${blog.id}`)
         .auth(token, { type: 'bearer' })
-        .send({ ...blog, likes:110 })
+        .send({ ...blog, likes: 110 })
         .expect(200)
 
       const entriesInDbAfterPut = await helper.blogsInDb()
-      assert.strictEqual(entriesInDbAfterPut.length, entries.length )
+      assert.strictEqual(entriesInDbAfterPut.length, entries.length)
 
       const entryAfterPut = await api.get(`/api/blogs/${blog.id}`)
-      assert.deepStrictEqual(entryAfterPut.body,  { ...blog, likes:110 })
+      assert.deepStrictEqual(entryAfterPut.body, { ...blog, likes: 110 })
     })
 
     test('a non-existent blog entry cannot be edited', async () => {
@@ -348,7 +400,7 @@ describe('Blogs main api tests', () => {
         .expect(404)
 
       const entriesInDbAfterPut = await helper.blogsInDb()
-      assert.strictEqual(entriesInDbAfterPut.length, entries.length )
+      assert.strictEqual(entriesInDbAfterPut.length, entries.length)
     })
   })
 
