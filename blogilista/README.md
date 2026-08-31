@@ -1,10 +1,8 @@
-# Blogilista backend (ongoing, refactoring)
+# Blogilista backend
 
-Fullstack -kurssin blogilista backend ja UT -tehtävien 4.1 - 4.21* palautus...
+Fullstack -kurssin blogilista backend ja UT -tehtävien 4.1 - 4.23* palautus
 
 Tehtävien toteutuksen vaatimukset on kuvattu kurssin sivuilla, https://fullstackopen.com/osa4
-
-- Osan palautus muotoutuu vielä ja lisää valmista tulossa, versioissa ylimäärästä kommentointia dokumentaatiomielessä vielä koodin seassa
 
 - npm-projektimuotoinen backend
 - Projekti jaettu moduuleihin
@@ -16,6 +14,11 @@ Tehtävien toteutuksen vaatimukset on kuvattu kurssin sivuilla, https://fullstac
   - GET, POST api/blogs testi ja operaatio: async/await -käyttö promisejen sijaan,
     id- attribuutti yksilöintitietona _id sijaan apeilta, default arvo ja olemassaolovaatimus modelissa
 - Blogilistan laajennus: stepit 1-2 (tehtävät 4.13-4.14*) DELETE, PUT ja testit
-- __4c-d__: Blogilistan laajennus: stepit 3-6 (tehtävät 4.14-4.21*). Käyttäjien tietokanta, POST ja GET, kredentiaalien validointi sekä testit. Populointi molemmin puolin käyttäjä-blogi välillä. Tokenperustainen autentikointi, login, get (stepit 6-7), delete (steppi 9). Steppi 8 (t4.20*) on autentikoinnin refaktorointia middlewareksi.
+- __4c-d__: Blogilistan laajennus: stepit 3-6 (tehtävät 4.14-4.21*). Käyttäjien  tietokanta, POST ja GET, kredentiaalien validointi sekä testit. Populointi molemmin puolin käyttäjä-blogi välillä.
+- Tokenperustainen autentikointi, login, get (stepit 6-7), delete (steppi 9).
+- Steppi 8 (t4.20*ja t4.22) on autentikoinnin refaktorointia middlewareiksi.
+- Stepit 10-11 (t.4.22* ja 4.23*), userExtractor middleware postille ja deletelle, get pitää pitää tokenitta, testi tokenien puuttumiselle (unauthorized).
+  
+Edellisien token-laajennusosien rikkomat testit korjattu (steppi 11, t.4.23)
 
 __KOODI JA TESTIT AJANTASAISESTI YHTENEVÄT, JÄRJESTYKSESSÄ KAIKISSA REPOISSA JA _KAIKKI TEHTÄVÄT OVAT VALMIITA_ (kaikki materiaalissa annetut tehtävät palautettu/tehty, useasti sopivilta osin häiritsemättömiä osia ennen varsinaista tehtäväkommittia)__

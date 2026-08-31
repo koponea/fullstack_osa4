@@ -18,7 +18,7 @@ const {
 } = require('../utils/config.js')
 const { omit }  = require('lodash')
 
-const api = supertest(app) // kääräisy,
+const api = supertest(app) // kääräisy
 // tämä myös käynnistää itse app:in to an ephemeral port
 
 const genRndId = () => Math.floor(Math.random() * 1000000000).toString()

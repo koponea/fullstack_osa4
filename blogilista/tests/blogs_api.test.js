@@ -11,8 +11,7 @@ const supertest = require('supertest')
 const app = require('../app')
 const helper = require('./test_helper')
 const logger = require('../utils/logger.js')
-//const Blog = require('../models/blog.js')
-const { omit } = require('lodash')
+const { omit, pick } = require('lodash')
 
 const api = supertest(app) // kääräisy,
 // tämä myös käynnistää itse app:in to an ephemeral port
@@ -84,7 +83,6 @@ describe('Blogs main api tests', () => {
       assert.deepEqual(receivedBlogsIds, savedBlogsIds)
     })
   })
-
   describe('Creating blogs', () => {
 
     test('blog is identified with the id attribute', async () => {
@@ -105,7 +103,7 @@ describe('Blogs main api tests', () => {
     })
 
     test('a valid blog can be added', async () => {
-      const testUser = users[1]
+      const testUser = users[1] // teppo ?
       const testUserCredentials = {
         password: testUser.password, username: testUser.username
       }
@@ -120,7 +118,7 @@ describe('Blogs main api tests', () => {
         author: 'mesohappy',
         url: 'http://www.u.nocando.com',
         likes: 5,
-        userId: testUser.id // teppo ?
+        //userId: testUser.id
       }
 
       await api
@@ -137,11 +135,11 @@ describe('Blogs main api tests', () => {
       const blog = blogs.find(blog => blog.title === blogNew.title)
       assert.deepStrictEqual(
         omit(blog, ['id', 'user']),
-        omit(blogNew, ['userId'])
+        blogNew //omit(blogNew, ['userId'])
       )
 
       const updatedUsers = await api.get('/api/users')
-      const updatedUser = updatedUsers.body.find(user => user.id === blogNew.userId)
+      const updatedUser = updatedUsers.body.find(user => user.id === testUser.id)
       logger.debug('updatedUser', updatedUser)
 
       const found = updatedUser.blogs.find(b => b.id === blog.id)
@@ -149,7 +147,7 @@ describe('Blogs main api tests', () => {
     })
 
     test('a blog with no likes gets zero likes', async () => {
-      const testUser = users[1]
+      const testUser = users[1]  // teppo
       const testUserCredentials = {
         password: testUser.password, username: testUser.username
       }
@@ -162,7 +160,7 @@ describe('Blogs main api tests', () => {
         title: helper.generateTestGuid(),
         author: 'Mesohappy Again',
         url: 'http://www.u.nolikes.com',
-        userId: testUser.id // teppo
+        //userId: testUser.id // teppo
       }
 
       await api
@@ -178,7 +176,7 @@ describe('Blogs main api tests', () => {
       const blogFresh = blogsFresh.find(blog => blog.title === blogNew.title)
       assert.deepStrictEqual(
         omit(blogFresh, ['id', 'user']),
-        { ...omit(blogNew, ['userId']), likes: 0 }
+        { ...blogNew, likes: 0 }
       )
     })
   })
@@ -186,7 +184,7 @@ describe('Blogs main api tests', () => {
   describe('Creating blogs unsuccessfully', () => {
 
     test('a blog with no title or url gets 400', async () => {
-      const testUser = users[1]
+      const testUser = users[1] // teppo
       const testUserCredentials = {
         password: testUser.password, username: testUser.username
       }
@@ -200,7 +198,7 @@ describe('Blogs main api tests', () => {
         author: 'Mesohappy Again',
         likes: 0,
         url: 'http://www.u.nolikes.com',
-        userId: testUser.id // teppo
+        userId: testUser.id
       }
 
       await api
@@ -208,7 +206,6 @@ describe('Blogs main api tests', () => {
         .auth(token, { type: 'bearer' })
         .send(omit(blogNew, ['url']))
         .expect(400)
-      // status: 400, text: '{"error":"Blog validation failed: url: url missing"}'
 
       await api
         .post('/api/blogs')
@@ -221,6 +218,31 @@ describe('Blogs main api tests', () => {
         .auth(token, { type: 'bearer' })
         .send(omit(blogNew, ['author', 'url']))
         .expect(400)
+
+      const blogsFresh = await helper.blogsInDb()
+      assert.strictEqual(blogsFresh.length, blogsInjected.length)
+
+      const newBlogs = blogsFresh.filter(blog => blog.title === blogNew.title)
+      assert(newBlogs.length === 0)
+    })
+
+    test('a blog with no auth token gets 401 Unauthorized', async () => {
+      const testUser = users[1] // teppo
+      await helper.injectToBlogsDbUpdateUsers(helper.listWithManyBlogsSimple, users)
+      const blogsInjected = await helper.blogsInDb()
+
+      const blogNew = {
+        title: helper.generateTestGuid(),
+        author: 'Mesohappppy',
+        likes: 10,
+        url: 'http://www.u.nolikes.com',
+        userId: testUser.id
+      }
+
+      await api
+        .post('/api/blogs')
+        .send(omit(blogNew, ['url']))
+        .expect(401)
 
       const blogsFresh = await helper.blogsInDb()
       assert.strictEqual(blogsFresh.length, blogsInjected.length)
@@ -314,7 +336,7 @@ describe('Blogs main api tests', () => {
       const updatedUser = updatedUsers.body.find(user => user.id === testUser.id)
       const found = updatedUser.blogs.find(b => b.id === entries[0].id)
       assert(!found)
-    }) 
+    })
 
     test('a blog entry cannot be deleted by a non-creator', async () => {
       const creator = users[1] // teppo
@@ -356,31 +378,43 @@ describe('Blogs main api tests', () => {
     })
   })
 
-  // tests/api not fixed yet, skipping though a bit unethical
-  describe.skip('Edit entries', () => {
+  describe('Edit entries', () => {
     test('a specific blog entry can be edited', async () => {
+      await helper.injectToBlogsDbUpdateUsers(helper.listWithManyBlogsSimple, users)
+
       const testUser = users[0]
       const testUserCredentials = {
         password: testUser.password, username: testUser.username
       }
       const { token } = await login(testUserCredentials)
 
-      await helper.injectToBlogsDbUpdateUsers(helper.listWithManyBlogsSimple)
       const entries = await helper.blogsInDb()
-      const blog = entries.find(blog => blog.likes > 0)
-      logger.debug('blog id:', blog.id ? blog.id : 'missing!!')
+      const blog = entries.find(blog =>
+        blog.likes && blog.likes > 0 && blog.user.toString() === testUser.id
+      )
+      logger.debug('blog:', blog)
+
+      const modBlog = {
+        ...omit(blog, ['user', 'url']),
+        userId: testUser.id,                        // old
+        likes: blog.likes ? blog.likes + 10 : 110
+      }
+      logger.debug('modBlog:', modBlog)
 
       await api
         .put(`/api/blogs/${blog.id}`)
         .auth(token, { type: 'bearer' })
-        .send({ ...blog, likes: 110 })
+        .send(modBlog)
         .expect(200)
 
       const entriesInDbAfterPut = await helper.blogsInDb()
       assert.strictEqual(entriesInDbAfterPut.length, entries.length)
 
       const entryAfterPut = await api.get(`/api/blogs/${blog.id}`)
-      assert.deepStrictEqual(entryAfterPut.body, { ...blog, likes: 110 })
+      assert.deepStrictEqual(
+        pick(entryAfterPut.body, ['likes', 'title', 'id', 'author']),
+        pick(modBlog, ['likes', 'title', 'id', 'author'])
+      )
     })
 
     test('a non-existent blog entry cannot be edited', async () => {
@@ -389,7 +423,8 @@ describe('Blogs main api tests', () => {
         password: testUser.password, username: testUser.username
       }
       const { token } = await login(testUserCredentials)
-      await helper.injectToBlogsDbUpdateUsers(helper.listWithManyBlogsSimple)
+
+      await helper.injectToBlogsDbUpdateUsers(helper.listWithManyBlogsSimple, users)
       const entries = await helper.blogsInDb()
       const blogId = await helper.nonExistentId()
 

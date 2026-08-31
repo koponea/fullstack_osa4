@@ -34,13 +34,16 @@ const listWithAlsoNoLikes = [
   { _id: '5a406aa61b54a676234d17f8', title: 'Mindblowing 6', author: 'Zooty', url: 'http://www.helsinki.fi/Harmful6.html', likes: 6, __v: 0 } //
 ]
 
-const nonExistentId = async () => {
+const nonExistentId = async (userId) => {
   // highly non-probable that this id is ever reused
+  // another thing does the user connection take into use
+  // - probably not since the blog will b deleted directly
   const blog = new Blog({
     title: 'willremovethissoon',
     author: 'Zooty',
     url: 'http://www.helsinki.fi',
-    likes: 0
+    likes: 0,
+    userId
   })
   const one = await blog.save()
   await Blog.deleteOne({ title: blog.title })

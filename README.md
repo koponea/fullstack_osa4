@@ -27,7 +27,7 @@ Tämä repositorio sisältää kurssin osan 4 tehtävien palautuksen (4.X) Teht�
 - Eslint konfigurointi (tehtävä 3.22)
 - Tämän osan Puhelinluettelo-appin backend production-frontendilla on Renderissä (ei käynnissä yleensä aikalaskutuksen vuoksi), url: '<https://fullstack-osa3-u4wc.onrender.com>'
 
-### fullstack_osa4 (ongoing, refactoring)
+### fullstack_osa4
 
 #### 4a projektin rakenne ja testauksen alkeet
 
@@ -54,8 +54,9 @@ Tämä repositorio sisältää kurssin osan 4 tehtävien palautuksen (4.X) Teht�
   Käyttäjän kredentiaalien validointi ja testit
   Populoidaan käyttäjän tiedot blogiin ja blogin käyttäjään
   tokenperustainen autentikointi login ja post.
-  Steppi 8 (t4.20*) on autentikoinnin refaktorointia middlewareksi.
+  Steppi 8&10 (t4.20* ja 22*) on autentikoinnin refaktorointia middlewareksi
   Steppi 9 (t4.21*), deletointi onnistuu vain blogin luojalta
-- FIXME & TODO debt: ... tehtäviä tulossa ... versioissa esim ylimäärästä kommentointia dokumentaatiomielessä vielä koodin seassa ja muotoilua ja refaktorointia lisättävä
+  Stepit 10-11 (t.4.22* ja 4.23*), userExtractor middleware postille ja deletelle, get pitää pitää tokenitta, testi tokenien puuttumiselle (unauthorized).
+  Edellisien token-laajennusosien rikkomat testit korjattu (steppi 11, t.4.23)
 
 __KOODI JA TESTIT AJANTASAISESTI YHTENEVÄT, JÄRJESTYKSESSÄ KAIKISSA REPOISSA JA _KAIKKI TEHTÄVÄT OVAT VALMIITA_ (kaikki materiaalissa annetut tehtävät palautettu/tehty)__

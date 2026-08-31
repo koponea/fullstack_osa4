@@ -23,8 +23,8 @@ app.use(express.json())  // before the requestLogger to get reqbody
 app.use(middleware.requestLogger)
 app.use(middleware.tokenExtractor)
 app.use('/api/login', loginRouter)
-app.use('/api/blogs', blogsRouter)  // here binding to A routebase
-app.use('/api/users', usersRouter)
+app.use('/api/blogs', blogsRouter)
+app.use('/api/users', usersRouter) // here binding to A routebase
 
 // middleware for a route not defined
 app.use(middleware.unknownEndpoint)
