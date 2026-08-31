@@ -49,11 +49,12 @@ Tämä repositorio sisältää kurssin osan 4 tehtävien palautuksen (4.X) Teht�
 
 #### 4c ja d käyttäjien hallinta ja tokenperustainen kirjautuminen
 
-- Blogilistan laajennus: stepit 3-7 (testit 4.15-4.19).
+- Blogilistan laajennus: stepit 3-8 (testit 4.15-4.20*).
   Käyttäjien tietokanta, POST ja GET sekä testit
   Käyttäjän kredentiaalien validointi ja testit
   Populoidaan käyttäjän tiedot blogiin ja blogin käyttäjään
-  tokenperustainen autentikointi login ja post
+  tokenperustainen autentikointi login ja post.
+  Steppi 8 (t4.20*) on autentikoinnin refaktorointia middlewareksi.
 - FIXME & TODO debt: ... tehtäviä tulossa ... versioissa esim ylimäärästä kommentointia dokumentaatiomielessä vielä koodin seassa ja muotoilua ja refaktorointia lisättävä
 
 __KOODI JA TESTIT AJANTASAISESTI YHTENEVÄT, JÄRJESTYKSESSÄ KAIKISSA REPOISSA JA _KAIKKI TEHTÄVÄT OVAT VALMIITA_ (kaikki materiaalissa annetut tehtävät palautettu/tehty)__

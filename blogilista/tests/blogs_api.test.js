@@ -17,6 +17,16 @@ const { omit }  = require('lodash')
 const api = supertest(app) // kääräisy,
 // tämä myös käynnistää itse app:in to an ephemeral port
 
+const login = async ({ username, password }) => {
+  const response = await api
+    .post('/api/login')
+    .send({ username, password })
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+  logger.debug('(token), uname, name', omit(response.body, ['token']))
+  return response.body
+}
+
 describe('Blogs main api tests', () => {
   /* users for all cases */
   let users = []
@@ -34,13 +44,14 @@ describe('Blogs main api tests', () => {
     users = []
     await helper.wipeUserAndBlogsDbs()
     const responsem = await api.post('/api/users').send(ruohoset.matti).expect(201)
-    users.push(responsem.body)
+    users.push({ ...responsem.body, password: ruohoset.matti.password })
     const responset = await api.post('/api/users').send(ruohoset.teppo).expect(201)
-    users.push(responset.body)
+    users.push({ ...responset.body, password: ruohoset.teppo.password })
     console.log('Test users created', users)
   })
 
   describe('Retrieving data', () => {
+
     test('blogs are returned as json', async () => {
       const testUsers = [users[0]]
       await helper.injectToBlogsDbUpdateUsers(helper.listWithOneBlog, testUsers)
@@ -94,8 +105,14 @@ describe('Blogs main api tests', () => {
     })
 
     test('a valid blog can be added', async () => {
-      const testUsers = [users[0]]
-      await helper.injectToBlogsDbUpdateUsers(helper.listWithManyBlogsSimple, testUsers)
+      const testUser = users[1]
+      const testUserCredentials = {
+        password: testUser.password, username: testUser.username
+      }
+      const { token } = await login(testUserCredentials)
+
+      const otherUsers = [users[0]]
+      await helper.injectToBlogsDbUpdateUsers(helper.listWithManyBlogsSimple, otherUsers)
       const blogsInjected = await helper.blogsInDb()
 
       const blogNew = {
@@ -103,11 +120,12 @@ describe('Blogs main api tests', () => {
         author: 'mesohappy',
         url: 'http://www.u.nocando.com',
         likes: 5,
-        userId: users[1].id // teppo
+        userId: testUser.id // teppo ?
       }
 
       await api
         .post('/api/blogs')
+        .auth(token, { type: 'bearer' })
         .send(blogNew)
         .expect(201)
         .expect('Content-Type', /application\/json/)
@@ -131,6 +149,12 @@ describe('Blogs main api tests', () => {
     })
 
     test('a blog with no likes gets zero likes', async () => {
+      const testUser = users[1]
+      const testUserCredentials = {
+        password: testUser.password, username: testUser.username
+      }
+      const { token } = await login(testUserCredentials)
+
       await helper.injectToBlogsDbUpdateUsers(helper.listWithManyBlogsSimple, users)
       const blogsInjected = await helper.blogsInDb()
 
@@ -138,11 +162,12 @@ describe('Blogs main api tests', () => {
         title: helper.generateTestGuid(),
         author: 'Mesohappy Again',
         url: 'http://www.u.nolikes.com',
-        userId: users[1].id // teppo
+        userId: testUser.id // teppo
       }
 
       await api
         .post('/api/blogs')
+        .auth(token, { type: 'bearer' })
         .send(blogNew)
         .expect(201)
         .expect('Content-Type', /application\/json/)
@@ -161,6 +186,12 @@ describe('Blogs main api tests', () => {
   describe('Creating blogs unsuccessfully', () => {
 
     test('a blog with no title or url gets 400', async () => {
+      const testUser = users[1]
+      const testUserCredentials = {
+        password: testUser.password, username: testUser.username
+      }
+      const { token } = await login(testUserCredentials)
+
       await helper.injectToBlogsDbUpdateUsers(helper.listWithManyBlogsSimple, users)
       const blogsInjected = await helper.blogsInDb()
 
@@ -169,22 +200,25 @@ describe('Blogs main api tests', () => {
         author: 'Mesohappy Again',
         likes: 0,
         url: 'http://www.u.nolikes.com',
-        userId: users[1].id // teppo
+        userId: testUser.id // teppo
       }
 
       await api
         .post('/api/blogs')
+        .auth(token, { type: 'bearer' })
         .send(omit(blogNew, ['url']))
         .expect(400)
       // status: 400, text: '{"error":"Blog validation failed: url: url missing"}'
 
       await api
         .post('/api/blogs')
+        .auth(token, { type: 'bearer' })
         .send(omit(blogNew, ['author']))
         .expect(400)
 
       await api
         .post('/api/blogs')
+        .auth(token, { type: 'bearer' })
         .send(omit(blogNew, ['author', 'url']))
         .expect(400)
 
@@ -269,9 +303,16 @@ describe('Blogs main api tests', () => {
       assert(!found)
     })
   })
-  /*
-  describe('Edit entries', () => {
+
+  // tests/api not fixed yet, skipping though a bit unethical
+  describe.skip('Edit entries', () => {
     test('a specific blog entry can be edited', async () => {
+      const testUser = users[0]
+      const testUserCredentials = {
+        password: testUser.password, username: testUser.username
+      }
+      const { token } = await login(testUserCredentials)
+
       await helper.injectToBlogsDbUpdateUsers(helper.listWithManyBlogsSimple)
       const entries = await helper.blogsInDb()
       const blog = entries.find(blog => blog.likes > 0)
@@ -279,6 +320,7 @@ describe('Blogs main api tests', () => {
 
       await api
         .put(`/api/blogs/${blog.id}`)
+        .auth(token, { type: 'bearer' })
         .send({ ...blog, likes:110 })
         .expect(200)
 
@@ -290,19 +332,25 @@ describe('Blogs main api tests', () => {
     })
 
     test('a non-existent blog entry cannot be edited', async () => {
+      const testUser = users[0]
+      const testUserCredentials = {
+        password: testUser.password, username: testUser.username
+      }
+      const { token } = await login(testUserCredentials)
       await helper.injectToBlogsDbUpdateUsers(helper.listWithManyBlogsSimple)
       const entries = await helper.blogsInDb()
       const blogId = await helper.nonExistentId()
 
       await api
         .put(`/api/blogs/${blogId}`)
-        .send({ ...entries[0], likes:111 })
+        .auth(token, { type: 'bearer' })
+        .send({ ...entries[0], likes: 111 })
         .expect(404)
 
       const entriesInDbAfterPut = await helper.blogsInDb()
       assert.strictEqual(entriesInDbAfterPut.length, entries.length )
     })
-  })*/
+  })
 
   after(async () => {
     await mongoose.connection.close()
