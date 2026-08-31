@@ -38,7 +38,7 @@ const mostBlogs = blogs => {
     })
     bloggers.push(blogger)
   })
-  //logger.debug('debug: mostBlogs bloggers:', bloggers)
+  logger.info('debug: mostBlogs bloggers:', bloggers)
   const reducer = (mostActive, blogger) => {
     // last handled blogger
     return mostActive.blogs > blogger.blogs ? mostActive : blogger
@@ -64,7 +64,7 @@ const mostLikes = blogs => {
     })
     bloggers.push(blogger)
   })
-  //logger.debug('debug: mostLikes bloggers:', bloggers)
+  logger.info('debug: mostLikes bloggers:', bloggers)
   const reducer = (mostLiked, blogger) => {
     // last handled blogger
     return mostLiked.likes > blogger.likes ? mostLiked : blogger

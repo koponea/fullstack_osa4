@@ -1,8 +1,8 @@
 // all the route eventhandlers
 const usersRouter = require('express').Router()
-const User = require('../models/user')
-const logger = require('../utils/logger')
 const bcrypt = require('bcrypt')
+const logger = require('../utils/logger')
+const User = require('../models/user')
 const {
   SALT_ROUNDS,
   PASSWORD_MIN,
@@ -12,7 +12,6 @@ const {
 usersRouter.get('/', async (request, response) => {
   const users = await User.find({})
     .populate('blogs', { title: 1, author: 1, url:1, likes:1 })
-  //logger.debugDenseString(`fetched all: ${users.toString()}`)
 
   response.json(users)
 })
@@ -26,7 +25,7 @@ usersRouter.get('/:id', async (request, response) => {
 
 usersRouter.post('/', async (request, response) => {
   const { username, password, name } = request.body
-  //logger.debug('request.body', request.body)
+  logger.info('request.body', request.body)
 
   if (!username) {
     return response.status(400).json({ error: 'username missing' })
@@ -42,11 +41,11 @@ usersRouter.post('/', async (request, response) => {
 
   const pwd = password ? password : ''
   const passwordHash = await bcrypt.hash(pwd, SALT_ROUNDS)
-  //logger.debug('passwordHash', passwordHash)
+  logger.info('passwordHash', passwordHash)
 
   const user = new User({ username, passwordHash })
   if (name) user.name = name
-  //logger.debug(user)
+  logger.info(user)
 
   const saved = await user.save()
   logger.info('added user', saved)

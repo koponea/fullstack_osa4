@@ -47,7 +47,6 @@ const nonExistentId = async (userId) => {
   })
   const one = await blog.save()
   await Blog.deleteOne({ title: blog.title })
-  console.log('none-existent id:', one._id.toString())
   return one._id.toString()
 }
 
@@ -61,21 +60,17 @@ const buildUserObject = async ({ password, username, name }) => {
 }
 
 const buildComparableUser = user => {
-  console.log('buildComparableUser', user)
   const newU = {
     id: user.id ? user.id : user._id.tostring(),
     username: user.username,
   }
   if (user.name) newU.name = user.name
   if (user.blogs) newU.blogs = user.blogs
-  console.log('buildComparableUser', newU)
   return newU
 }
 
-/*
- * Injecting the blogs for existing users,
- * new blogs and blogs added tot the users
- */
+// Injecting the blogs for existing users,
+// new blogs and blogs added tot the users
 const injectToBlogsDbUpdateUsers = async (blogsToInsert = [], users) => {
   // or await Blog.insertMany(whatnotBlogs) e.g.
   const blogObjects = blogsToInsert.map((blog, index) => new Blog({
@@ -84,27 +79,22 @@ const injectToBlogsDbUpdateUsers = async (blogsToInsert = [], users) => {
   }))
   const promiseArrayBlogs = blogObjects.map(blog => blog.save())
   await Promise.all(promiseArrayBlogs)
-
   const userObjectsAll = await User.find({})
-  // logger.debug('userObjectsAll >>>>>>>>>>>>>>>', userObjectsAll)
 
-  const userIdListUsed = blogObjects.map(n => n.user.toString())  //ok
+  const userIdListUsed = blogObjects.map(n => n.user.toString())
 
   const userObjectsToSave = userObjectsAll
-    .filter(userObj => userIdListUsed.includes(userObj.id)) //ok
-  //logger.debug('userObjectsToSave', userObjectsToSave)
+    .filter(userObj => userIdListUsed.includes(userObj.id))
 
   for (const user of userObjectsToSave) {
     let updates = blogObjects.filter(blogObj => blogObj.user.toString() === user.id)
-    //logger.debug('updates --------->>>>>>>>>>>>>>>', updates)
 
     updates = updates.map(update => update._id.toString())
     user.blogs ? user.blogs = user.blogs.concat(updates) : user.blogs = [updates]
   }
-  //logger.debug('updated userObjectsToSave !!!!!!!', userObjectsToSave)
 
   const promiseArrayUsers = userObjectsToSave.map(user => user.save())
-  await Promise.all(promiseArrayUsers) //.then(console.log)
+  await Promise.all(promiseArrayUsers)
 }
 
 const testInitBlogsDb = async ( blogsToInsert = [], users ) => {
@@ -135,26 +125,6 @@ const testInitUsersDb = async ({ password = 'sekret', username = 'root', name = 
   return savedRootUser
 }
 
-const wipeUserDb = () =>
-  usersInDb().then(inUsersDb => {
-    for (const user of inUsersDb) {
-      User.deleteOne({ _id: user.id }).then(resp =>
-        logger.debug('wipeUserDb, deleted?', resp, user.username, user.id))
-    }
-  }).then(() => usersInDb().then(console.log))
-
-const wipeBlogsDb = () =>
-  blogsInDb().then(inBlogsDb => {
-    for (const note of inBlogsDb) {
-      Blog.deleteOne({ _id: note.id }).then(resp =>
-        logger.debug('wipeBlogsDb, deleted?', resp, note.id))
-    }
-  }).then(() => blogsInDb().then(console.log))
-
-const wipeUserAndBlogsDbsPromises = () =>
-  //const userClean = await User.deleteMany({}) // nah if many tests
-  wipeUserDb().then(() => wipeBlogsDb())
-
 const wipeUserAndBlogsDbs = async () => {
   const userClean = await User.deleteMany({})
   const blogsClean = await Blog.deleteMany({})
@@ -179,5 +149,4 @@ module.exports = {
   blogsInDb,
   generateTestGuid,
   wipeUserAndBlogsDbs,
-  wipeUserAndBlogsDbsPromises,
 }

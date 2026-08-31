@@ -22,7 +22,6 @@ const login = async ({ username, password }) => {
     .send({ username, password })
     .expect(200)
     .expect('Content-Type', /application\/json/)
-  logger.debug('(token), uname, name', omit(response.body, ['token']))
   return response.body
 }
 
@@ -46,7 +45,7 @@ describe('Blogs main api tests', () => {
     users.push({ ...responsem.body, password: ruohoset.matti.password })
     const responset = await api.post('/api/users').send(ruohoset.teppo).expect(201)
     users.push({ ...responset.body, password: ruohoset.teppo.password })
-    console.log('Test users created', users)
+    logger.info('Test users created', users)
   })
 
   describe('Retrieving data', () => {
@@ -64,22 +63,16 @@ describe('Blogs main api tests', () => {
     test('all blogs are returned', async () => {
       await helper.injectToBlogsDbUpdateUsers(helper.listWithManyBlogsSimple, users)
       const blogs = await helper.blogsInDb()
-      logger.debug('saved blogs [user, blog] ',
-        blogs.map(b => [b.user.toString(), b.id]))
+      /*logger.debug('saved blogs [user, blog] ',
+        blogs.map(b => [b.user.toString(), b.id]))*/
       const savedBlogsIds = blogs.map(b => b.id)
-      //logger.debug('get all: available ids', blogIds)
 
-      const updatedUsers = await api.get('/api/users')
-      updatedUsers.body.forEach(
-        user => logger.debug('get users [user, blogs]',
-          user.blogs.map(b => [user.id, b.id]))
-      )
+      await api.get('/api/users')
 
       const response = await api.get('/api/blogs')
       assert.strictEqual(response.body.length, helper.listWithManyBlogsSimple.length)
 
       const receivedBlogsIds = response.body.map(b => b.id)
-      logger.debug('GET blogs, ids: ', receivedBlogsIds)
       assert.deepEqual(receivedBlogsIds, savedBlogsIds)
     })
   })
@@ -88,18 +81,16 @@ describe('Blogs main api tests', () => {
     test('blog is identified with the id attribute', async () => {
       const testUsers = [users[0]]
       await helper.injectToBlogsDbUpdateUsers(helper.listWithOneBlog, testUsers)
-      // const blogs = await helper.blogsInDb()
-      // logger.debug('test all returned titles', blogs.map(b => b.title))
 
       const response = await api.get('/api/blogs/')
       assert.strictEqual(response.body.length, 1)
 
-      logger.debug('test identify by "id"', Object.keys(response.body[0]))
+      logger.info('test identify by "id"', Object.keys(response.body[0]))
       assert(Object.keys(response.body[0]).includes('id'))
 
       const responseSingle = await api.get(`/api/blogs/${response.body[0].id}`)
       assert.deepStrictEqual(response.body[0], responseSingle.body)
-      logger.debug(response.body[0], responseSingle.body)
+      logger.info(response.body[0], responseSingle.body)
     })
 
     test('a valid blog can be added', async () => {
@@ -130,7 +121,7 @@ describe('Blogs main api tests', () => {
 
       const blogs = await helper.blogsInDb()
       assert.strictEqual(blogs.length, blogsInjected.length + 1)
-      logger.debug('after new post', blogs.map(b => b.title))
+      logger.info('after new post', blogs.map(b => b.title))
 
       const blog = blogs.find(blog => blog.title === blogNew.title)
       assert.deepStrictEqual(
@@ -140,7 +131,6 @@ describe('Blogs main api tests', () => {
 
       const updatedUsers = await api.get('/api/users')
       const updatedUser = updatedUsers.body.find(user => user.id === testUser.id)
-      logger.debug('updatedUser', updatedUser)
 
       const found = updatedUser.blogs.find(b => b.id === blog.id)
       assert(found)
@@ -252,7 +242,7 @@ describe('Blogs main api tests', () => {
     })
   })
 
-  describe('Deleting  entries and verifying user data', () => {
+  describe('Deleting entries and verifying user data', () => {
     test('a specific blog entry can be deleted', async () => {
       const otherUsers = [users[0]]
       const testUser = users[1] // teppo
@@ -268,38 +258,42 @@ describe('Blogs main api tests', () => {
         userId: testUser.id
       }
 
-      logger.debug('blogNew', blogNew)
-
       await helper.injectToBlogsDbUpdateUsers([blogNew], [testUser])
       await helper.injectToBlogsDbUpdateUsers(
         helper.listWithManyBlogsSimple, otherUsers
       )
       const entriesInDbStart = await helper.blogsInDb()
-      const blog = entriesInDbStart.find(blog => blog.title === blogNew.title) //ok
-      logger.debug('injected blog', blog)
-
+      const blog = entriesInDbStart.find(
+        blog => blog.title === blogNew.title
+      )
+      logger.info('injected blog', blog)
 
       const usersInStart = await api.get('/api/users')
-      logger.debug('usersInStart', usersInStart.body)
-      const userInStart = usersInStart.body.find(user => user.id === testUser.id)
-      logger.debug('userInStart.blogs (blogNew)', userInStart.blogs) // no user in
+      const userInStart = usersInStart.body.find(
+        user => user.id === testUser.id
+      )
 
-      let blogInUsersBlogs = userInStart.blogs.find(b => b.id === blog.id)
+      let blogInUsersBlogs = userInStart.blogs.find(
+        b => b.id === blog.id
+      )
       assert(blogInUsersBlogs)
 
-      await api.delete(`/api/blogs/${blog.id}`) //ok
+      await api.delete(`/api/blogs/${blog.id}`)
         .auth(token, { type: 'bearer' })
         .expect(204)
 
       const entriesInDbAfterDelete = await helper.blogsInDb()
-      const titlesInDbAfterDelete = entriesInDbAfterDelete.map(e => e.title)
+      const titlesInDbAfterDelete =
+        entriesInDbAfterDelete.map(e => e.title)
 
       assert.strictEqual(entriesInDbAfterDelete.length,
         helper.listWithManyBlogsSimple.length)
       assert(!titlesInDbAfterDelete.includes(blogNew.title))
 
       const updatedUsers = await api.get('/api/users')
-      const updatedUser = updatedUsers.body.find(user => user.id === testUser.id)
+      const updatedUser = updatedUsers.body.find(
+        user => user.id === testUser.id
+      )
       const found = updatedUser.blogs.find(b => b.id === blog.id)
       assert(!found)
     })
@@ -323,7 +317,8 @@ describe('Blogs main api tests', () => {
       const entries = await helper.blogsInDb()
       assert(entries.length === 1)
       assert(entries[0].title === blogNew.title)
-      logger.debug('last entry for deletion:', entries[0].id ? entries[0].id : 'missing!!')
+      logger.info('last entry for deletion:',
+        entries[0].id ? entries[0].id : 'missing!!')
 
       await api.delete(`/api/blogs/${entries[0].id}`)
         .auth(token, { type: 'bearer' })
@@ -333,7 +328,9 @@ describe('Blogs main api tests', () => {
       assert(entriesInDbAfterDelete.length === 0)
 
       const updatedUsers = await api.get('/api/users')
-      const updatedUser = updatedUsers.body.find(user => user.id === testUser.id)
+      const updatedUser = updatedUsers.body.find(
+        user => user.id === testUser.id
+      )
       const found = updatedUser.blogs.find(b => b.id === entries[0].id)
       assert(!found)
     })
@@ -372,7 +369,9 @@ describe('Blogs main api tests', () => {
       assert(titlesInDbAfterDelete.includes(blogNew.title))
 
       const updatedUsers = await api.get('/api/users')
-      const updatedUser = updatedUsers.body.find(user => user.id === creator.id)
+      const updatedUser = updatedUsers.body.find(
+        user => user.id === creator.id
+      )
       const found = updatedUser.blogs.find(b => b.id === blog.id)
       assert(found)
     })
@@ -380,7 +379,9 @@ describe('Blogs main api tests', () => {
 
   describe('Edit entries', () => {
     test('a specific blog entry can be edited', async () => {
-      await helper.injectToBlogsDbUpdateUsers(helper.listWithManyBlogsSimple, users)
+      await helper.injectToBlogsDbUpdateUsers(
+        helper.listWithManyBlogsSimple, users
+      )
 
       const testUser = users[0]
       const testUserCredentials = {
@@ -390,16 +391,15 @@ describe('Blogs main api tests', () => {
 
       const entries = await helper.blogsInDb()
       const blog = entries.find(blog =>
-        blog.likes && blog.likes > 0 && blog.user.toString() === testUser.id
+        blog.likes && blog.likes > 0 &&
+        blog.user.toString() === testUser.id
       )
-      logger.debug('blog:', blog)
 
       const modBlog = {
         ...omit(blog, ['user', 'url']),
         userId: testUser.id,                        // old
         likes: blog.likes ? blog.likes + 10 : 110
       }
-      logger.debug('modBlog:', modBlog)
 
       await api
         .put(`/api/blogs/${blog.id}`)
@@ -424,7 +424,9 @@ describe('Blogs main api tests', () => {
       }
       const { token } = await login(testUserCredentials)
 
-      await helper.injectToBlogsDbUpdateUsers(helper.listWithManyBlogsSimple, users)
+      await helper.injectToBlogsDbUpdateUsers(
+        helper.listWithManyBlogsSimple, users
+      )
       const entries = await helper.blogsInDb()
       const blogId = await helper.nonExistentId()
 
