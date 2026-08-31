@@ -22,7 +22,8 @@ const userSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Blog',
-    }],
+    }
+  ],
 })
 
 // muutetaan skemojen toJSON mongoose-olioihin

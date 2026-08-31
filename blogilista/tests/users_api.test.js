@@ -74,14 +74,6 @@ describe('User api tests', () => {
     assert(usernames.includes(user.username))
   })
 
-  /* this test for some reason often gets stuck with my
-   * poor laptop, even if it has a very basic apicall to
-   * a mongodb over the net (slow db, need larger timeout?).
-   * The :id api is not yet required, so fixing the api+test
-   * later, and a bit unorthodox, but leaving this here
-   * as commented to pollute the code. koponea Aug 29, Sat
-   */
-  /*
   test('a specific user can be returned', async () => {
     logger.debug('specific user can, suite users:', users)
 
@@ -89,9 +81,9 @@ describe('User api tests', () => {
     const response = await api.get(`/api/users/${user.id}`)
     logger.debug('specific user can, get resp:', response.body)
 
-    assert.strictEqual(response.body, user)
+    assert.deepEqual(response.body, helper.buildComparableUser(user))
   })
-  */
+
   test('creation succeeds with a fresh username', async () => {
     // db not empty but 1st with api
     const usersAtStart = await helper.usersInDb()
